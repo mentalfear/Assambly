@@ -24,7 +24,6 @@ loop:
         jmp loop
         
         
-        
 exit:   
         ;push esp
         push ausgabe
