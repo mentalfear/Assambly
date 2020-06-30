@@ -1,0 +1,3 @@
+Compile:    nasm -felf HelloWorld.asm
+GCC:        gcc -m32 -o HelloWorld HelloWorld.o
+ErrorCode:  echo $?

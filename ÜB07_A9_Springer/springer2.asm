@@ -2,14 +2,13 @@ section .text
 extern printf
 global main
 
-
 main:
     mov ecx, 0      ; Counter jumps
-    mov edx, 0       ; Array counter
+    mov edx, 0      ; Array counter
     mov dl, '0'
-    mov eax,  0      ; var: read number
-    mov ebx, 0       ; var: number bevor (evtl nicht benötigt)
-    mov esi, 1      ; array pointer
+    mov al, 0      ; var: read number
+    mov bl, 0      ; var: sign 
+    mov esi, 0     ; array pointer
     
 read:
     mov al, [array + esi]   ; first char read
@@ -32,7 +31,7 @@ Number:     ; 1. neue Nummer?
     mov dl, al              ; Array Counter = Array Number
     cmp dl, '0'             ; Array Number == 0 ?
     je exitloop             ; --> exitLoop
-    dec dl                  ; sich selbst abziehen
+    dec dl                  ; dec ArrayCounter (ArrayNumber)
     
     cmp esi, 0              ; Am Anfang des Arrays
     je readf                ; -> nur nach rechts möglich zu lesen
@@ -46,6 +45,7 @@ Number:     ; 1. neue Nummer?
 readf:
     cmp esi, arraylen       ; drüberhinaus lesen
     je exit                 ; --> exit
+    
     mov bl, 0               ; Sicher gehen das (evtl nicht nötig)
     inc esi                 ; forward reading
     jmp read
@@ -53,6 +53,7 @@ readf:
 readb:
     cmp esi, 0              ; drunterhinaus lesen
     je exit                 ; --> exit
+    
     dec esi                 ; backward reading
     jmp read
    
@@ -61,31 +62,21 @@ noRightNumber:
     jmp noNumber
     
 noNumber:
-    cmp bl, 45             ; if (bx = '-')
+    cmp bl, 45             ; if (bl = '-')
     je readb                ; jmp read backward
     jmp readf               ; jmp read forward
     
 exitloop: ;-1 ausgabe
-    push 0                  ; 0 treminiert für printf
-    push '-1'               ; push '-1'
-    jmp print
-
-exit: ;normaler Durchlauf
-    push 0                  ; 0 terminerit für printf
-    add ecx, 48             ; ecx-int --> ecx-ascii
-    push ecx                ; push ascii
-    jmp print
-    
-print:
-    push esp                ; printf pointer Stack
-    push string             ; push message
-    call printf
-
     mov eax, 1              ; sys_exit
-    mov ebx, 0              ; error_code 0
+    mov ebx, -1              ; error_code -1 "endless loop"
+    int 80h                 ; call kernel
+    
+exit: ;normaler Durchlauf
+    mov eax, 1              ; sys_exit
+    mov ebx, ecx            ; error_code ecx "number of jumps"
     int 80h                 ; call kernel
 
 section .data
-    array db ' 2, 3, 0, 2, -1' ,0xa
+    array db '2, 3, -1, 2, -1' ,0xa
     arraylen equ $-array
-    string db 'ergebnis = %s', 0xa, 0
+    
