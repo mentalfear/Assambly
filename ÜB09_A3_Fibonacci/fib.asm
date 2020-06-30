@@ -8,8 +8,7 @@ main:
         
         push 0          ; Fib(0)
         push 1          ; Fib(1) - Startbedingung (1. Durchlauf)
-        ;push 1          ;
-        sub eax, 1      ; Da erster durchlauf schon geschrieben
+        dec eax      ; Da erster durchlauf schon geschrieben
         
 loop:
         pop ebx         ; n-1 
